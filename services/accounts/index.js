@@ -6,33 +6,48 @@ const typeDefs = gql`
     me: User
   }
 
+  extend type Mutation {
+    updateUser(userInput: UserUpdateInput!, id: String!): Boolean
+  }
+
+  input UserUpdateInput {
+    name: String
+  }
+
   type User @key(fields: "id") {
     id: ID!
     name: String
     username: String
+    testField: String
   }
 `;
 
 const resolvers = {
   Query: {
     me() {
+      console.log("Query::me");
       return users[0];
-    }
+    },
+  },
+  Mutation: {
+    updateUser() {
+      console.log("Mutation::updateUser", arguments);
+    },
   },
   User: {
     __resolveReference(object) {
-      return users.find(user => user.id === object.id);
-    }
-  }
+      return users.find((user) => user.id === object.id);
+    },
+  },
 };
 
 const server = new ApolloServer({
   schema: buildFederatedSchema([
     {
       typeDefs,
-      resolvers
-    }
-  ])
+      resolvers,
+    },
+  ]),
 });
 
 server.listen({ port: 4001 }).then(({ url }) => {
@@ -44,12 +59,14 @@ const users = [
     id: "1",
     name: "Ada Lovelace",
     birthDate: "1815-12-10",
-    username: "@ada"
+    username: "@ada",
+    testField: "TEST",
   },
   {
     id: "2",
     name: "Alan Turing",
     birthDate: "1912-06-23",
-    username: "@complete"
-  }
+    username: "@complete",
+    testField: "TEST",
+  },
 ];
